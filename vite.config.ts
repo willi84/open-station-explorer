@@ -27,11 +27,19 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
+            urlPattern: /^https:\/\/bahn\.dev\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'station-overview-cache',
+              expiration: { maxEntries: 5, maxAgeSeconds: 86400 }
+            }
+          },
+          {
             urlPattern: /^https:\/\/v5\.db\.transport\.rest\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'transport-api-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 300 }
+              cacheName: 'departures-api-cache',
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 }
             }
           }
         ]
@@ -41,15 +49,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
-    }
-  },
-  server: {
-    proxy: {
-      '/api/station-data': {
-        target: 'https://stationservice.noncd.db.de',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/station-data/, '/ss')
-      }
     }
   }
 })

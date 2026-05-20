@@ -20,7 +20,9 @@ export interface StationFacilities {
   hasLostAndFound: boolean
   hasMobilityService: boolean
   hasStepFreeAccess: boolean
-  hasBoardingAid: boolean
+  hasWiFi: boolean
+  hasTravelCenter: boolean
+  hasCarRental: boolean
   category: number
   federalState?: string
   address?: {

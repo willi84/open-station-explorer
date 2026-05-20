@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Location, StationFacilities, Departure } from '@/types'
-import { searchLocations, getNearbyStops, getStopDetails, getDepartures } from '@/services/transportApi'
-import { getStationFacilities } from '@/services/stationDataApi'
+import { searchStations, getNearbyStations, getStationById } from '@/services/stationOverviewApi'
+import { getDepartures } from '@/services/transportApi'
 
 export const useStationsStore = defineStore('stations', () => {
   const currentStation = ref<Location | null>(null)
@@ -13,12 +13,12 @@ export const useStationsStore = defineStore('stations', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  async function searchStations(query: string) {
+  async function searchStationsAction(query: string) {
     if (!query.trim()) { searchResults.value = []; return }
     isLoading.value = true
     error.value = null
     try {
-      searchResults.value = await searchLocations(query)
+      searchResults.value = await searchStations(query)
     } catch (e: any) {
       error.value = e.message
     } finally {
@@ -30,7 +30,7 @@ export const useStationsStore = defineStore('stations', () => {
     isLoading.value = true
     error.value = null
     try {
-      nearbyStations.value = await getNearbyStops(lat, lon)
+      nearbyStations.value = await getNearbyStations(lat, lon)
     } catch (e: any) {
       error.value = e.message
     } finally {
@@ -43,10 +43,10 @@ export const useStationsStore = defineStore('stations', () => {
     error.value = null
     facilities.value = null
     try {
-      const station = await getStopDetails(id)
-      if (station) {
-        currentStation.value = station
-        facilities.value = await getStationFacilities(id)
+      const result = await getStationById(id)
+      if (result) {
+        currentStation.value = result.location
+        facilities.value = result.facilities
       }
     } catch (e: any) {
       error.value = e.message
@@ -75,7 +75,7 @@ export const useStationsStore = defineStore('stations', () => {
     departures,
     isLoading,
     error,
-    searchStations,
+    searchStations: searchStationsAction,
     loadNearby,
     loadStation,
     loadDepartures,
